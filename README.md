@@ -2,6 +2,10 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+Uses effect-ts to sequence loading/saving redux state and rendering a react/redux app
+
+Uses the effect-ts adaptation of morphic-ts to compose business objects that come with constructors, destructors, guards, validators and typesafe reducer factory functions (you can use the original @morphic-ts/batteries to accomplish the same things)
+
 ## Available Scripts
 
 In the project directory, you can run:
