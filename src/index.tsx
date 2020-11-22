@@ -1,17 +1,69 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
+import * as T from '@effect-ts/core/Effect'
+import * as S from '@effect-ts/core/Effect/Stream'
+import * as Schedule from '@effect-ts/core/Effect/Schedule'
+import { pipe } from '@effect-ts/core/Function'
+
+import {
+  AppState,
+  AppStore,
+  loadState,
+  saveState,
+  renderApp,
+  createStore
+} from './app';
 import reportWebVitals from './reportWebVitals';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+import './index.css';
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+const saveStatePeriodically = (store: AppStore) =>
+  pipe(
+    S.fromSchedule(Schedule.fixed(10000)),
+    S.mapM(() =>
+      pipe(
+        store.getState(),
+        saveState,
+        T.chainError((reason) =>
+          T.effectTotal(
+            () => {
+              console.log(`failed to save state: ${reason}`)
+            }
+          )
+        ),
+        T.andThen(
+          T.effectTotal(
+            () => {
+              console.log(`saved state`)
+            }
+          )
+        )
+      )
+    ),
+    S.runDrain
+  )
+
+const main = pipe(
+  loadState,
+  T.tapError((reason) =>
+    T.effectTotal(
+      () => {
+        console.log(`${reason}, couldn't load state`)
+      }
+    )
+  ),
+  T.catchAll(() =>
+    T.succeed(
+      AppState.of.InitState({})
+    )
+  ),
+  T.map(createStore),
+  T.chain((store) =>
+    T.collectAll([
+      renderApp(store),
+      saveStatePeriodically(store)
+    ])
+  )
+)
+
+T.runPromise(main).catch(console.warn)
+
 reportWebVitals();
