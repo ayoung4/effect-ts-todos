@@ -6,41 +6,39 @@ import { Provider, useDispatch, useSelector } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import {
-  Action as TodosAction,
-  State as TodosState,
   TodoStatus,
   AddTodoForm,
   TodosTable,
 } from './todos'
-import { AppState, AppStore } from './store'
+import { AppState, AppStore, AppAction } from './store'
 
 const App = () => {
 
   const state = useSelector((s: AppState) => s)
-  const dispatch = useDispatch<Dispatch<TodosAction>>()
+  const dispatch = useDispatch<Dispatch<AppAction>>()
 
   const addTodo = (title: string) =>
     pipe(
       { payload: { title } },
-      TodosAction.of.AddTodo,
+      AppAction.of.AddTodo,
       dispatch,
     )
 
   const deleteTodo = (id: number) =>
     pipe(
       { payload: { id } },
-      TodosAction.of.DeleteTodo,
+      AppAction.of.DeleteTodo,
       dispatch,
     )
 
   const updateTodo = (status: TodoStatus) => (id: number) =>
     pipe(
       { payload: { id, status } },
-      TodosAction.of.SetTodoStatus,
+      AppAction.of.SetTodoStatus,
       dispatch,
     )
 
-  const renderMain = TodosState.matchStrict({
+  const renderMain = AppState.matchStrict({
     InitState: () => (
       <main>
         <div>

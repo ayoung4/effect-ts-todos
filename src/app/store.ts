@@ -1,6 +1,14 @@
 import { configureStore, Store } from '@reduxjs/toolkit'
 
-import { reducer, State as TodoState } from './todos'
+import {
+  Action as TodoAction,
+  State as TodoState,
+  reducer,
+} from './todos'
+
+export type AppAction = TodoAction
+
+export const AppAction = TodoAction
 
 export type AppState = TodoState
 
